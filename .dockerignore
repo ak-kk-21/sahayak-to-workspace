@@ -1,12 +1,9 @@
-# Sensitive files
-firebase-auth.json
-.env
-.venv
-.myenv
-__pycache__
-oaith_client.txt
+# Git
+.git
+.gitignore
 
 # Python
+__pycache__
 *.pyc
 *.pyo
 *.pyd
@@ -16,6 +13,7 @@ venv/
 ENV/
 env.bak/
 venv.bak/
+.myenv/
 
 # IDE
 .vscode/
@@ -30,6 +28,14 @@ Thumbs.db
 # Logs
 *.log
 
+# Documentation
+*.md
+docs/
+
+# Test files
+Testing_py_files/
+test_*.py
+
 # Temporary files
 *.tmp
-*.temp
+*.temp 

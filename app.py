@@ -39,8 +39,25 @@ GOOGLE_CLIENT_SECRET = os.getenv('GOOGLE_CLIENT_SECRET')
 OAUTH_REDIRECT_URI = os.getenv('OAUTH_REDIRECT_URI', 'http://localhost:5000/auth')
 
 # Firebase Admin SDK setup
-cred = credentials.Certificate("firebase-auth.json")
-firebase_admin.initialize_app(cred)
+try:
+    # Try to use service account file first
+    cred = credentials.Certificate("firebase-auth.json")
+    firebase_admin.initialize_app(cred)
+except FileNotFoundError:
+    # Fallback to environment variables
+    cred = credentials.Certificate({
+        "type": "service_account",
+        "project_id": "sahayak-to-workspace",
+        "private_key_id": os.getenv('FIREBASE_PRIVATE_KEY_ID'),
+        "private_key": os.getenv('FIREBASE_PRIVATE_KEY').replace('\\n', '\n') if os.getenv('FIREBASE_PRIVATE_KEY') else None,
+        "client_email": os.getenv('FIREBASE_CLIENT_EMAIL'),
+        "client_id": os.getenv('FIREBASE_CLIENT_ID'),
+        "auth_uri": "https://accounts.google.com/o/oauth2/auth",
+        "token_uri": "https://oauth2.googleapis.com/token",
+        "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
+        "client_x509_cert_url": os.getenv('FIREBASE_CLIENT_CERT_URL')
+    })
+    firebase_admin.initialize_app(cred)
 db = firestore.client()
 
 # Initialize Realtime Database for messaging
@@ -67,12 +84,19 @@ Please provide clear, helpful, and accurate responses. If you're not sure about 
 
 # Initialize Gemini chat model
 genai.configure(api_key=os.getenv('GEMINI_API_KEY'))
-gemini_chat = ChatGoogleGenerativeAI(
-    model="gemini-1.5-pro-latest",
-    google_api_key=os.getenv('GEMINI_API_KEY'),
-    temperature=0.7,
-    max_output_tokens=2048
-)
+
+# Initialize LangChain chat model with explicit API key
+try:
+    gemini_chat = ChatGoogleGenerativeAI(
+        model="gemini-1.5-pro-latest",
+        google_api_key=os.getenv('GEMINI_API_KEY'),
+        temperature=0.7,
+        max_output_tokens=2048
+    )
+    print("✅ LangChain Gemini chat initialized")
+except Exception as e:
+    print(f"⚠️  LangChain Gemini chat not available: {e}")
+    gemini_chat = None
 
 # Initialize conversation memory
 memory = ConversationBufferMemory(
@@ -326,12 +350,15 @@ def get_profile():
 @api_auth_required
 def save_profile():
     """Save teacher profile to Firestore"""
+    print(f"🔍 Profile save request received")
     try:
         user = session.get('user')
+        print(f"🔍 User from session: {user}")
         if not user:
             return jsonify({'error': 'User not found'}), 404
         
         data = request.get_json()
+        print(f"🔍 Received data: {data}")
         if not data:
             return jsonify({'error': 'No data provided'}), 400
         
@@ -738,6 +765,9 @@ def sakhaa_chat():
                 full_message = message
 
         # Get response from Gemini
+        if gemini_chat is None:
+            return jsonify({"error": "AI chat service not available"}), 500
+        
         response = gemini_chat.invoke(full_message)
         bot_reply = response.content.strip()
 
@@ -772,6 +802,18 @@ def test_api():
     return jsonify({
         'status': 'ok',
         'message': 'API is working',
+        'timestamp': datetime.datetime.now().isoformat()
+    })
+
+@app.route('/api/test-auth')
+@api_auth_required
+def test_auth():
+    """Test authentication endpoint"""
+    user = session.get('user')
+    return jsonify({
+        'status': 'ok',
+        'message': 'Authentication working',
+        'user': user,
         'timestamp': datetime.datetime.now().isoformat()
     })
 
@@ -958,4 +1000,6 @@ def health_check():
     })
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    # Get port from environment variable (Cloud Run sets PORT)
+    port = int(os.environ.get('PORT', 5000))
+    app.run(host='0.0.0.0', port=port, debug=False)
