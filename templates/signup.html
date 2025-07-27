@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+
+    <title>Sign Up - Sahayak</title>
+
+    <style>
+      body {
+        margin: 0;
+        padding: 0;
+        font-family: 'Poppins', sans-serif;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column;
+      }
+
+      main {
+        flex: 1;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 2rem;
+      }
+
+      .auth-container {
+        background: white;
+        border-radius: 20px;
+        box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+        overflow: hidden;
+        width: 100%;
+        max-width: 450px;
+        position: relative;
+      }
+
+      .auth-header {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 2rem;
+        text-align: center;
+      }
+
+      .auth-header h1 {
+        font-size: 2rem;
+        font-weight: 700;
+        margin-bottom: 0.5rem;
+      }
+
+      .auth-header p {
+        opacity: 0.9;
+        font-weight: 300;
+      }
+
+      .auth-form {
+        padding: 2rem;
+      }
+
+      .form-group {
+        margin-bottom: 1.5rem;
+      }
+
+      .form-group label {
+        display: block;
+        margin-bottom: 0.5rem;
+        color: #333;
+        font-weight: 500;
+        font-size: 0.9rem;
+      }
+
+      .form-input {
+        width: 100%;
+        padding: 1rem;
+        border: 2px solid #e9ecef;
+        border-radius: 10px;
+        font-size: 1rem;
+        font-family: inherit;
+        transition: all 0.3s ease;
+        box-sizing: border-box;
+      }
+
+      .form-input:focus {
+        outline: none;
+        border-color: #667eea;
+        box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+      }
+
+      .form-input.error {
+        border-color: #dc3545;
+      }
+
+      .error-msg {
+        color: #dc3545;
+        font-size: 0.85rem;
+        margin-top: 0.5rem;
+        display: none;
+      }
+
+      .error-msg.show {
+        display: block;
+      }
+
+      .signup-btn {
+        width: 100%;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 1rem;
+        border: none;
+        border-radius: 10px;
+        font-size: 1rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        margin-bottom: 1.5rem;
+      }
+
+      .signup-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 10px 25px rgba(102, 126, 234, 0.3);
+      }
+
+      .signup-btn:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
+        transform: none;
+      }
+
+      .divider {
+        text-align: center;
+        margin: 1.5rem 0;
+        position: relative;
+        color: #666;
+        font-size: 0.9rem;
+      }
+
+      .divider::before {
+        content: '';
+        position: absolute;
+        top: 50%;
+        left: 0;
+        right: 0;
+        height: 1px;
+        background: #e9ecef;
+      }
+
+      .divider span {
+        background: white;
+        padding: 0 1rem;
+      }
+
+      .google-btn {
+        width: 100%;
+        background: white;
+        color: #333;
+        padding: 1rem;
+        border: 2px solid #e9ecef;
+        border-radius: 10px;
+        font-size: 1rem;
+        font-weight: 500;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.75rem;
+        text-decoration: none;
+        margin-bottom: 1.5rem;
+      }
+
+      .google-btn:hover {
+        background: #f8f9fa;
+        border-color: #667eea;
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        text-decoration: none;
+        color: #333;
+      }
+
+      .google-icon {
+        width: 20px;
+        height: 20px;
+      }
+
+      .auth-links {
+        text-align: center;
+        margin-top: 1.5rem;
+      }
+
+      .auth-links a {
+        color: #667eea;
+        text-decoration: none;
+        font-weight: 500;
+        transition: color 0.3s ease;
+      }
+
+      .auth-links a:hover {
+        color: #764ba2;
+        text-decoration: underline;
+      }
+
+      @media (max-width: 480px) {
+        main {
+          padding: 1rem;
+        }
+        
+        .auth-container {
+          border-radius: 15px;
+        }
+        
+        .auth-header {
+          padding: 1.5rem;
+        }
+        
+        .auth-form {
+          padding: 1.5rem;
+        }
+      }
+    </style>
+
+    </head>
+    <body>
+        {% include 'navbar_public.html' %}
+
+        <main>
+            <div class="auth-container">
+                <div class="auth-header">
+                    <h1>Join Sahayak</h1>
+                    <p>Create your account to get started</p>
+                </div>
+
+                <div class="auth-form">
+                    <div class="form-group">
+                        <label for="email-input">Email Address</label>
+                        <input type="email" id="email-input" name="email" class="form-input" placeholder="Enter your email" required>
+                        <div id="email-error-message" class="error-msg"></div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="password-input">Password</label>
+                        <input type="password" id="password-input" name="password" class="form-input" placeholder="Create a password" required>
+                        <div id="password-error-message" class="error-msg"></div>
+                    </div>
+
+                    <button id="create-account-btn" class="signup-btn">
+                        <i class="fas fa-user-plus"></i> Create Account
+                    </button>
+
+                    <div class="divider">
+                        <span>OR</span>
+                    </div>
+
+                    <button id="sign-up-with-google-btn" class="google-btn">
+                        <img src="{{ url_for('static', filename='images/google-icon.png') }}" alt="Google" class="google-icon">
+                        Sign up with Google
+                    </button>
+                    <div id="google-signin-error-message" class="error-msg"></div>
+
+                    <div class="auth-links">
+                        <a href="{{ url_for('login') }}">Already have an account? Sign in</a>
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <script src="{{ url_for('static', filename='login-auth.js') }}" type="module"></script>
+        <script src="{{ url_for('static', filename='scripts.js') }}" type="module"></script>
+
+    </body>
+</html>

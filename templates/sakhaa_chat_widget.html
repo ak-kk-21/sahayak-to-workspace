@@ -1,0 +1,239 @@
+<!-- Floating Chat Widget for Sakhaa -->
+<div id="sakhaa-chat-widget" style="position: fixed; bottom: 20px; right: 20px; z-index: 1000;">
+    <!-- Chat Toggle Button -->
+    <div id="chat-toggle-btn" onclick="toggleSakhaaChat()" style="
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        border-radius: 50%;
+        width: 60px;
+        height: 60px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 24px;
+        cursor: pointer;
+        box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+        transition: all 0.3s ease;
+        border: none;
+    " onmouseover="this.style.transform='scale(1.1)'" onmouseout="this.style.transform='scale(1)'">
+        🤖
+    </div>
+    
+    <!-- Chat Window -->
+    <div id="chat-window" style="
+        display: none;
+        position: absolute;
+        bottom: 80px;
+        right: 0;
+        width: 350px;
+        height: 500px;
+        background: white;
+        border-radius: 15px;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        overflow: hidden;
+        border: 1px solid #e9ecef;
+    ">
+        <!-- Chat Header -->
+        <div style="
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 15px;
+            font-weight: 600;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        ">
+            <span>🤖 Sakhaa AI</span>
+            <button onclick="toggleSakhaaChat()" style="
+                background: none;
+                border: none;
+                color: white;
+                font-size: 18px;
+                cursor: pointer;
+                padding: 0;
+            ">✖</button>
+        </div>
+        
+        <!-- Chat Messages -->
+        <div id="widget-messages" style="
+            height: 350px;
+            overflow-y: auto;
+            padding: 15px;
+            background: #f8f9fa;
+        ">
+            <div style="
+                background: white;
+                padding: 10px;
+                border-radius: 10px;
+                margin-bottom: 10px;
+                border-left: 3px solid #667eea;
+            ">
+                Hello! I'm Sakhaa, your AI assistant. How can I help you today?
+            </div>
+        </div>
+        
+        <!-- Chat Input -->
+        <div style="
+            padding: 15px;
+            border-top: 1px solid #e9ecef;
+            background: white;
+        ">
+            <div style="display: flex; gap: 10px;">
+                <input type="text" 
+                       id="widget-input" 
+                       placeholder="Type your message..."
+                       style="
+                           flex: 1;
+                           padding: 10px;
+                           border: 1px solid #ddd;
+                           border-radius: 20px;
+                           outline: none;
+                       "
+                       onkeypress="handleWidgetKeyPress(event)">
+                <button onclick="sendWidgetMessage()" style="
+                    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                    color: white;
+                    border: none;
+                    padding: 10px 15px;
+                    border-radius: 20px;
+                    cursor: pointer;
+                    font-size: 14px;
+                ">Send</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+let isChatOpen = false;
+
+function toggleSakhaaChat() {
+    const chatWindow = document.getElementById('chat-window');
+    const toggleBtn = document.getElementById('chat-toggle-btn');
+    
+    if (isChatOpen) {
+        chatWindow.style.display = 'none';
+        toggleBtn.innerHTML = '🤖';
+    } else {
+        chatWindow.style.display = 'block';
+        toggleBtn.innerHTML = '✖';
+        document.getElementById('widget-input').focus();
+    }
+    
+    isChatOpen = !isChatOpen;
+}
+
+function handleWidgetKeyPress(event) {
+    if (event.key === 'Enter') {
+        sendWidgetMessage();
+    }
+}
+
+async function sendWidgetMessage() {
+    const input = document.getElementById('widget-input');
+    const message = input.value.trim();
+    if (!message) return;
+    
+    const messagesContainer = document.getElementById('widget-messages');
+    
+    // Add user message
+    messagesContainer.innerHTML += `
+        <div style="
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 10px;
+            border-radius: 10px;
+            margin-bottom: 10px;
+            margin-left: 20px;
+            text-align: right;
+        ">
+            ${message}
+        </div>
+    `;
+    
+    input.value = '';
+    messagesContainer.scrollTop = messagesContainer.scrollHeight;
+    
+    // Show typing indicator
+    messagesContainer.innerHTML += `
+        <div id="typing-indicator" style="
+            background: white;
+            padding: 10px;
+            border-radius: 10px;
+            margin-bottom: 10px;
+            border-left: 3px solid #667eea;
+            font-style: italic;
+            color: #666;
+        ">
+            Sakhaa is typing...
+        </div>
+    `;
+    messagesContainer.scrollTop = messagesContainer.scrollHeight;
+    
+    try {
+        const response = await fetch('/sakhaa', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ message: message })
+        });
+        
+        const data = await response.json();
+        
+        // Remove typing indicator
+        const typingIndicator = document.getElementById('typing-indicator');
+        if (typingIndicator) {
+            typingIndicator.remove();
+        }
+        
+        if (response.ok && data.reply) {
+            messagesContainer.innerHTML += `
+                <div style="
+                    background: white;
+                    padding: 10px;
+                    border-radius: 10px;
+                    margin-bottom: 10px;
+                    border-left: 3px solid #667eea;
+                ">
+                    ${data.reply}
+                </div>
+            `;
+        } else {
+            messagesContainer.innerHTML += `
+                <div style="
+                    background: #ffe6e6;
+                    color: #d63031;
+                    padding: 10px;
+                    border-radius: 10px;
+                    margin-bottom: 10px;
+                    border-left: 3px solid #d63031;
+                ">
+                    ❌ Error: ${data.error || 'Failed to get response'}
+                </div>
+            `;
+        }
+    } catch (error) {
+        // Remove typing indicator
+        const typingIndicator = document.getElementById('typing-indicator');
+        if (typingIndicator) {
+            typingIndicator.remove();
+        }
+        
+        messagesContainer.innerHTML += `
+            <div style="
+                background: #ffe6e6;
+                color: #d63031;
+                padding: 10px;
+                border-radius: 10px;
+                margin-bottom: 10px;
+                border-left: 3px solid #d63031;
+            ">
+                ❌ Network error: ${error.message}
+            </div>
+        `;
+    }
+    
+    messagesContainer.scrollTop = messagesContainer.scrollHeight;
+}
+</script> 

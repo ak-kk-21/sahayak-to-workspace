@@ -1,0 +1,16 @@
+# Copy this file to .env and fill in your actual values
+
+# Flask Configuration
+SECRET_KEY=your-secret-key-here
+
+# Google OAuth 2.0 Configuration
+GOOGLE_CLIENT_ID=your-google-client-id-here
+GOOGLE_CLIENT_SECRET=your-google-client-secret-here
+OAUTH_REDIRECT_URI=http://localhost:5000/auth
+
+# Firebase Admin SDK Configuration
+FIREBASE_PRIVATE_KEY_ID=your-private-key-id
+FIREBASE_PRIVATE_KEY="-----BEGIN PRIVATE KEY-----\nYour private key here\n-----END PRIVATE KEY-----\n"
+FIREBASE_CLIENT_EMAIL=your-service-account@project.iam.gserviceaccount.com
+FIREBASE_CLIENT_ID=your-client-id
+FIREBASE_CLIENT_CERT_URL=https://www.googleapis.com/robot/v1/metadata/x509/your-service-account%40project.iam.gserviceaccount.com 

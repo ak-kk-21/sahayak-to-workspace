@@ -1,0 +1,261 @@
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+
+<style>
+  .navbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 0 2rem;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+  }
+
+  .logo-img {
+    width: 60px;
+    height: 60px;
+    border-radius: 10px;
+    margin: 0.5rem 0;
+  }
+
+  .navbar-brand {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    text-decoration: none;
+    color: white;
+  }
+
+  .navbar-brand h1 {
+    font-size: 1.5rem;
+    font-weight: 700;
+    margin: 0;
+  }
+
+  .navbar-right {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+  }
+
+  .navbar a {
+    text-decoration: none;
+    color: white;
+    padding: 0.75rem 1.5rem;
+    border-radius: 25px;
+    font-weight: 500;
+    transition: all 0.3s ease;
+    position: relative;
+  }
+
+  .navbar a:hover {
+    background: rgba(255,255,255,0.2);
+    transform: translateY(-2px);
+  }
+
+  .navbar a.active {
+    background: rgba(255,255,255,0.3);
+  }
+
+  .dropdown {
+    position: relative;
+    display: inline-block;
+  }
+
+  .dropbtn {
+    background: none;
+    border: none;
+    color: white;
+    padding: 0.75rem 1.5rem;
+    border-radius: 25px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-family: inherit;
+    font-size: inherit;
+  }
+
+  .dropbtn:hover {
+    background: rgba(255,255,255,0.2);
+    transform: translateY(-2px);
+  }
+
+  .dropdown-content {
+    display: none;
+    position: absolute;
+    background: white;
+    min-width: 200px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+    border-radius: 15px;
+    z-index: 1;
+    margin-top: 0.5rem;
+    right: 0;
+    overflow: hidden;
+  }
+
+  .dropdown-content a {
+    color: #333;
+    padding: 1rem 1.5rem;
+    text-decoration: none;
+    display: block;
+    transition: all 0.3s ease;
+    border-radius: 0;
+  }
+
+  .dropdown-content a:hover {
+    background: #f8f9fa;
+    color: #667eea;
+    transform: none;
+  }
+
+  .logout-btn {
+    background: rgba(255,255,255,0.2);
+    border: 2px solid rgba(255,255,255,0.3);
+    padding: 0.75rem 2rem;
+    border-radius: 25px;
+    font-weight: 600;
+    transition: all 0.3s ease;
+  }
+
+  .logout-btn:hover {
+    background: #dc3545;
+    color: white;
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(220, 53, 69, 0.3);
+  }
+
+  .hamburger {
+    display: none;
+    font-size: 1.5rem;
+    cursor: pointer;
+    color: white;
+  }
+
+  .closebtn {
+    display: none;
+    font-size: 2rem;
+    cursor: pointer;
+    color: white;
+  }
+
+  @media screen and (max-width: 768px) {
+    .navbar {
+      padding: 0 1rem;
+    }
+
+    .navbar-brand h1 {
+      font-size: 1.2rem;
+    }
+
+    .hamburger {
+      display: block;
+    }
+
+    .navbar-right {
+      position: fixed;
+      top: 0;
+      left: -100%;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      width: 100%;
+      height: 100vh;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      transition: 0.5s;
+      gap: 2rem;
+    }
+
+    .navbar-right.active {
+      left: 0;
+    }
+
+    .closebtn {
+      display: block;
+      position: absolute;
+      top: 2rem;
+      right: 2rem;
+    }
+
+    .dropdown-content {
+      position: static;
+      background: rgba(255,255,255,0.1);
+      box-shadow: none;
+      margin-top: 1rem;
+      border-radius: 10px;
+    }
+
+    .dropdown-content a {
+      color: white;
+      text-align: center;
+    }
+
+    .dropdown-content a:hover {
+      background: rgba(255,255,255,0.2);
+      color: white;
+    }
+  }
+</style>
+
+<div class="navbar">
+  <a href="{{ url_for('dashboard') }}" class="navbar-brand">
+    <img class="logo-img" src="{{ url_for('static', filename='images/default_logo.png') }}" alt="Logo" />
+    <h1>Sahayak</h1>
+  </a>
+  
+  <span class="hamburger" onclick="toggleNav()">&#9776;</span>
+  
+  <div class="navbar-right" id="navbarRight">
+    <span class="closebtn" onclick="closeNav()">&times;</span>
+    <a href="{{ url_for('dashboard') }}" class="active">Dashboard</a>
+    <a href="{{ url_for('lekhak') }}">Lekhak</a>
+    <a href="{{ url_for('summarizer') }}">Summarizer</a>
+    <a href="{{ url_for('messenger') }}">💬 Messenger</a>
+    <a href="{{ url_for('sakhaa_page') }}">🤖 Sakhaa</a>
+    
+    <div class="dropdown">
+      <button class="dropbtn">Account <i class="fas fa-chevron-down"></i></button>
+      <div class="dropdown-content">
+        <a href="{{ url_for('profile_page') }}"><i class="fas fa-user"></i> Profile</a>
+        <a href="#settings"><i class="fas fa-cog"></i> Settings</a>
+        <a href="{{ url_for('logout') }}" class="logout-btn" id="sign-out-btn">
+          <i class="fas fa-sign-out-alt"></i> Logout
+        </a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+function toggleNav() {
+  document.getElementById("navbarRight").classList.toggle("active");
+}
+
+function closeNav() {
+  document.getElementById("navbarRight").classList.remove("active");
+}
+
+// Close nav when clicking outside
+document.addEventListener('click', function(event) {
+  const navbar = document.querySelector('.navbar');
+  const hamburger = document.querySelector('.hamburger');
+  
+  if (!navbar.contains(event.target) && !hamburger.contains(event.target)) {
+    closeNav();
+  }
+});
+
+// Show dropdown on hover
+document.querySelectorAll('.dropdown').forEach(dropdown => {
+  dropdown.addEventListener('mouseenter', function() {
+    this.querySelector('.dropdown-content').style.display = 'block';
+  });
+  
+  dropdown.addEventListener('mouseleave', function() {
+    this.querySelector('.dropdown-content').style.display = 'none';
+  });
+});
+</script>

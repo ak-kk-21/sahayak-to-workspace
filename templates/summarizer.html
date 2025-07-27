@@ -1,0 +1,385 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PDF Summarizer with Gemini</title>
+    <link rel="stylesheet" href="/static/styles.css">
+    <style>
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+        
+        .file-upload-section {
+            margin: 2rem 0;
+            text-align: center;
+        }
+        
+        .file-label {
+            display: inline-block;
+            padding: 1rem 2rem;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-radius: 10px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+        
+        .file-label:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.3);
+        }
+        
+        .file-input {
+            display: none;
+        }
+        
+        .file-name {
+            margin-top: 1rem;
+            font-weight: 600;
+            color: #333;
+        }
+        
+        .summarize-btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 1rem 2rem;
+            border-radius: 10px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin: 1rem 0;
+        }
+        
+        .summarize-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.3);
+        }
+        
+        .summarize-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+        
+        .loading {
+            display: none;
+            text-align: center;
+            margin: 2rem 0;
+        }
+        
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #667eea;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 1rem;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .summary-container {
+            display: none;
+            margin-top: 2rem;
+            padding: 2rem;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+        
+        .error {
+            color: #e74c3c;
+            text-align: center;
+            margin: 1rem 0;
+            font-weight: 600;
+        }
+        
+        .summary-dialog {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 1.5rem;
+        }
+        
+        .summary-section {
+            margin-bottom: 1.5rem;
+        }
+        
+        .summary-section h4 {
+            color: #333;
+            margin-bottom: 1rem;
+            font-size: 1.2rem;
+        }
+        
+        .summary-section ul {
+            list-style: none;
+            padding: 0;
+        }
+        
+        .summary-section li {
+            background: white;
+            padding: 1rem;
+            margin-bottom: 0.5rem;
+            border-radius: 8px;
+            border-left: 4px solid #667eea;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+        }
+        
+        .highlight {
+            background: #fff3cd;
+            padding: 0.2rem 0.4rem;
+            border-radius: 4px;
+            font-weight: 600;
+        }
+        
+        .docs-link {
+            display: inline-block;
+            background: #28a745;
+            color: white;
+            padding: 0.8rem 1.5rem;
+            text-decoration: none;
+            border-radius: 8px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+        
+        .docs-link:hover {
+            background: #218838;
+            transform: translateY(-2px);
+            text-decoration: none;
+            color: white;
+        }
+    </style>
+</head>
+<body>
+
+    {% include 'navbar_private.html' %}
+    
+    <div class="container">
+        <h1>📄 PDF Summarizer with Gemini AI</h1>
+        
+        <form id="pdfForm" enctype="multipart/form-data">
+            <div class="file-upload-section">
+                <label for="pdfFile" class="file-label">
+                    📁 Choose PDF File
+                </label>
+                <input type="file" id="pdfFile" name="pdf_file" class="file-input" accept="application/pdf" required>
+                <div id="fileName" class="file-name"></div>
+            </div>
+            
+            <div style="text-align: center;">
+                <button type="submit" class="summarize-btn" id="summarizeBtn">
+                    🚀 Summarize PDF
+                </button>
+            </div>
+        </form>
+        
+        <div id="loading" class="loading">
+            <div class="spinner"></div>
+            <span>Processing your PDF...</span>
+        </div>
+        
+        <div id="summaryContainer" class="summary-container">
+            <h2>📋 Summary</h2>
+            <div id="summary"></div>
+        </div>
+        
+        <div id="error" class="error"></div>
+        
+        <!-- Debug section (only visible in development) -->
+        <div id="debugInfo" style="display: none; margin-top: 2rem; padding: 1rem; background: #f8f9fa; border-radius: 10px; font-family: monospace; font-size: 0.9rem;">
+            <h4>Debug Information</h4>
+            <div id="debugContent"></div>
+        </div>
+    </div>
+    
+    <script>
+        const form = document.getElementById('pdfForm');
+        const fileInput = document.getElementById('pdfFile');
+        const fileNameDiv = document.getElementById('fileName');
+        const loadingDiv = document.getElementById('loading');
+        const summaryContainer = document.getElementById('summaryContainer');
+        const summaryDiv = document.getElementById('summary');
+        const errorDiv = document.getElementById('error');
+        const submitBtn = document.getElementById('summarizeBtn');
+        const debugInfo = document.getElementById('debugInfo');
+        const debugContent = document.getElementById('debugContent');
+        
+        // Show debug info in development (you can remove this in production)
+        if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
+            debugInfo.style.display = 'block';
+        }
+        
+        // Show selected filename
+        fileInput.addEventListener('change', function() {
+            const file = this.files[0];
+            if (file) {
+                fileNameDiv.textContent = `Selected: ${file.name}`;
+                fileNameDiv.style.display = 'block';
+            } else {
+                fileNameDiv.style.display = 'none';
+            }
+        });
+        
+        // Handle form submission
+        form.addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const file = fileInput.files[0];
+            if (!file) {
+                errorDiv.textContent = 'Please select a PDF file.';
+                return;
+            }
+            
+            // Reset UI
+            errorDiv.textContent = '';
+            summaryDiv.textContent = '';
+            summaryContainer.style.display = 'none';
+            loadingDiv.style.display = 'block';
+            submitBtn.disabled = true;
+            
+            try {
+                const formData = new FormData();
+                formData.append('pdf_file', file);
+                
+                // Debug logging
+                debugContent.innerHTML = `
+                    <p><strong>File:</strong> ${file.name} (${(file.size / 1024 / 1024).toFixed(2)} MB)</p>
+                    <p><strong>Request URL:</strong> /summarizer</p>
+                    <p><strong>Request Method:</strong> POST</p>
+                    <p><strong>Timestamp:</strong> ${new Date().toISOString()}</p>
+                `;
+                
+                // Create AbortController for timeout
+                const controller = new AbortController();
+                const timeoutId = setTimeout(() => controller.abort(), 120000); // 2 minutes timeout
+                
+                console.log('Sending request to /summarizer...');
+                const response = await fetch('/summarizer', {
+                    method: 'POST',
+                    body: formData,
+                    signal: controller.signal
+                });
+                
+                clearTimeout(timeoutId);
+                console.log('Response received:', response.status, response.statusText);
+                
+                // Update debug info
+                debugContent.innerHTML += `
+                    <p><strong>Response Status:</strong> ${response.status} ${response.statusText}</p>
+                    <p><strong>Response Headers:</strong> ${JSON.stringify(Object.fromEntries(response.headers.entries()))}</p>
+                `;
+                
+                if (!response.ok) {
+                    const errorData = await response.json().catch(() => ({}));
+                    throw new Error(errorData.error || `HTTP ${response.status}: ${response.statusText}`);
+                }
+                
+                const data = await response.json();
+                console.log('Response data:', data);
+                
+                if (data.summary) {
+                    // Format the summary with dialog-style structure
+                    const formattedSummary = formatSummary(data.summary, data.doc_url);
+                    summaryDiv.innerHTML = formattedSummary;
+                    summaryContainer.style.display = 'block';
+                } else {
+                    errorDiv.textContent = data.error || 'No summary generated.';
+                }
+            } catch (err) {
+                console.error('Fetch error details:', err);
+                
+                // Update debug info with error details
+                debugContent.innerHTML += `
+                    <p><strong>Error Type:</strong> ${err.name}</p>
+                    <p><strong>Error Message:</strong> ${err.message}</p>
+                    <p><strong>Error Stack:</strong> ${err.stack}</p>
+                `;
+                
+                if (err.name === 'AbortError') {
+                    errorDiv.textContent = 'Request timed out. Please try again with a smaller PDF file.';
+                } else if (err.message.includes('Failed to fetch')) {
+                    errorDiv.textContent = 'Network error. Please check your internet connection and try again.';
+                } else {
+                    errorDiv.textContent = 'Error processing PDF: ' + err.message;
+                }
+                console.error('Summarizer error:', err);
+            }
+            
+            loadingDiv.style.display = 'none';
+            submitBtn.disabled = false;
+        });
+        
+        function formatSummary(summary, docUrl = null) {
+            // Split summary into sentences and clean them
+            const sentences = summary
+                .replace(/([.!?])\s+/g, '$1|') // Mark sentence endings
+                .split('|')
+                .map(s => s.trim())
+                .filter(s => s.length > 10) // Filter out very short fragments
+                .map(s => s.replace(/^[.!?]/, '').trim()) // Clean up
+                .filter(s => s.length > 0);
+            
+            // Create dialog-style format
+            let formattedHTML = '<div class="summary-dialog">';
+            
+            // Add main summary section
+            formattedHTML += '<div class="summary-section">';
+            formattedHTML += '<h4>📋 Key Points</h4>';
+            formattedHTML += '<ul>';
+            
+            // Process each sentence as a separate point
+            sentences.forEach(sentence => {
+                if (sentence.trim()) {
+                    // Highlight important terms
+                    const highlighted = sentence
+                        .replace(/\b(?:summary|key|important|main|primary|essential|conclusion|overview|analysis)\b/gi, 
+                                '<span class="highlight">$&</span>')
+                        .replace(/\b(?:first|second|third|finally|additionally|moreover|however|therefore)\b/gi, 
+                                '<span class="highlight">$&</span>');
+                    
+                    formattedHTML += `<li>${highlighted}</li>`;
+                }
+            });
+            
+            formattedHTML += '</ul>';
+            formattedHTML += '</div>';
+            
+            // Add document info section
+            formattedHTML += '<div class="summary-section">';
+            formattedHTML += '<h4>📄 Document Overview</h4>';
+            formattedHTML += '<ul>';
+            formattedHTML += '<li><strong>Content Type:</strong> PDF Document</li>';
+            formattedHTML += '<li><strong>Summary Generated:</strong> Using Gemini AI</li>';
+            formattedHTML += '<li><strong>Key Topics:</strong> Extracted from document content</li>';
+            formattedHTML += '</ul>';
+            formattedHTML += '</div>';
+            
+            // Add Google Docs link if available
+            if (docUrl) {
+                formattedHTML += '<div class="summary-section">';
+                formattedHTML += '<h4>📝 Google Docs</h4>';
+                formattedHTML += '<p>Your summary has been saved to Google Docs:</p>';
+                formattedHTML += `<a href="${docUrl}" target="_blank" class="docs-link">📄 Open in Google Docs</a>`;
+                formattedHTML += '</div>';
+            }
+            
+            formattedHTML += '</div>';
+            
+            return formattedHTML;
+        }
+    </script>
+
+    <!-- Sakhaa Chat Widget -->
+    {% include 'sakhaa_chat_widget.html' %}
+</body>
+</html> 

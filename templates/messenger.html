@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Messenger - Sahayak</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    
+    <style>
+        .messenger-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+            height: 80vh;
+            display: flex;
+            gap: 2rem;
+        }
+        
+        .sidebar {
+            width: 300px;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+            overflow: hidden;
+        }
+        
+        .sidebar-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 1.5rem;
+            text-align: center;
+        }
+        
+        .sidebar-header h3 {
+            margin: 0;
+            font-size: 1.2rem;
+            font-weight: 600;
+        }
+        
+        .contacts-list {
+            padding: 1rem;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+        
+        .contact {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            padding: 1rem;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-bottom: 0.5rem;
+        }
+        
+        .contact:hover {
+            background: #f8f9fa;
+        }
+        
+        .contact.active {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+        
+        .contact-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            font-size: 1.1rem;
+        }
+        
+        .contact-info {
+            flex: 1;
+        }
+        
+        .contact-name {
+            font-weight: 600;
+            margin-bottom: 0.2rem;
+        }
+        
+        .contact-status {
+            font-size: 0.9rem;
+            opacity: 0.7;
+        }
+        
+        .main-chat {
+            flex: 1;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .chat-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 1.5rem;
+            border-radius: 15px 15px 0 0;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+        
+        .chat-header-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.2);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            font-size: 1.1rem;
+        }
+        
+        .chat-header h3 {
+            margin: 0;
+            font-size: 1.2rem;
+            font-weight: 600;
+        }
+        
+        .chat-box {
+            flex: 1;
+            padding: 1.5rem;
+            overflow-y: auto;
+            background: #f8f9fa;
+        }
+        
+        .message {
+            margin-bottom: 1rem;
+            max-width: 70%;
+            padding: 1rem;
+            border-radius: 15px;
+            position: relative;
+        }
+        
+        .message.sent {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            margin-left: auto;
+            border-bottom-right-radius: 5px;
+        }
+        
+        .message.received {
+            background: white;
+            color: #333;
+            border: 1px solid #e9ecef;
+            border-bottom-left-radius: 5px;
+        }
+        
+        .chat-form {
+            padding: 1.5rem;
+            border-top: 1px solid #e9ecef;
+            display: flex;
+            gap: 1rem;
+        }
+        
+        .message-input {
+            flex: 1;
+            padding: 1rem;
+            border: 2px solid #e9ecef;
+            border-radius: 25px;
+            font-family: 'Poppins', sans-serif;
+            font-size: 1rem;
+            outline: none;
+            transition: border-color 0.3s ease;
+        }
+        
+        .message-input:focus {
+            border-color: #667eea;
+        }
+        
+        .send-btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 1rem 1.5rem;
+            border-radius: 25px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .send-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.3);
+        }
+        
+        .no-chat-selected {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 100%;
+            color: #666;
+            font-size: 1.1rem;
+        }
+        
+        @media (max-width: 768px) {
+            .messenger-container {
+                flex-direction: column;
+                height: auto;
+                padding: 1rem;
+            }
+            
+            .sidebar {
+                width: 100%;
+                max-height: 300px;
+            }
+            
+            .main-chat {
+                height: 60vh;
+            }
+        }
+    </style>
+</head>
+<body>
+    {% include 'navbar_private.html' %}
+    
+    <div class="messenger-container">
+        <!-- Sidebar with contacts -->
+        <div class="sidebar">
+            <div class="sidebar-header">
+                <h3><i class="fas fa-users"></i> Contacts</h3>
+            </div>
+            <div class="contacts-list" id="contactsList">
+                <!-- Contacts will be loaded here -->
+            </div>
+            <!-- Manual registration button for testing -->
+            <div style="padding: 1rem; border-top: 1px solid #e9ecef;">
+                <button id="registerBtn" style="
+                    width: 100%;
+                    background: #28a745;
+                    color: white;
+                    border: none;
+                    padding: 0.5rem;
+                    border-radius: 5px;
+                    cursor: pointer;
+                    font-size: 0.9rem;
+                ">
+                    🔧 Register Me (Debug)
+                </button>
+            </div>
+        </div>
+        
+        <!-- Main chat area -->
+        <div class="main-chat">
+            <div class="chat-header" id="chatHeader" style="display: none;">
+                <div class="chat-header-avatar" id="recipientAvatar"></div>
+                <h3 id="recipientName"></h3>
+            </div>
+            
+            <div class="chat-box" id="chatBox">
+                <div class="no-chat-selected">
+                    <i class="fas fa-comments"></i>
+                    <p>Select a contact to start chatting</p>
+                </div>
+            </div>
+            
+            <form class="chat-form" id="chatForm" style="display: none;">
+                <input type="text" 
+                       class="message-input" 
+                       id="messageInput" 
+                       placeholder="Type your message..."
+                       autocomplete="off">
+                <button type="submit" class="send-btn">
+                    <i class="fas fa-paper-plane"></i>
+                </button>
+            </form>
+        </div>
+    </div>
+    
+    <!-- Firebase and messaging scripts -->
+    <script type="module" src="{{ url_for('static', filename='firebase-config.js') }}"></script>
+    <script type="module" src="{{ url_for('static', filename='messenger.js') }}"></script>
+    
+    <!-- Sakhaa Chat Widget -->
+    {% include 'sakhaa_chat_widget.html' %}
+</body>
+</html> 

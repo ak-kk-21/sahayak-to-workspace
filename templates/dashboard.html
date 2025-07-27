@@ -1,0 +1,397 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}" >
+
+  <title>Dashboard - Sahayak</title>
+
+  <style>
+    /* Dashboard-specific styles */
+    .dashboard-container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 2rem;
+    }
+
+    .dashboard-header {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      padding: 3rem 2rem;
+      border-radius: 20px;
+      margin-bottom: 2rem;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+    }
+
+    .dashboard-header h1 {
+      font-size: 2.5rem;
+      font-weight: 700;
+      margin-bottom: 0.5rem;
+    }
+
+    .dashboard-header p {
+      font-size: 1.1rem;
+      opacity: 0.9;
+      margin: 0;
+    }
+
+    .welcome-message {
+      font-size: 1.2rem;
+      margin-bottom: 1rem;
+    }
+
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 1.5rem;
+      margin-bottom: 2rem;
+    }
+
+    .stat-card {
+      background: white;
+      padding: 1.5rem;
+      border-radius: 15px;
+      box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+      border-left: 4px solid #667eea;
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    .stat-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+    }
+
+    .stat-card h3 {
+      color: #667eea;
+      font-size: 1.1rem;
+      margin-bottom: 0.5rem;
+      font-weight: 600;
+    }
+
+    .stat-card .stat-value {
+      font-size: 2rem;
+      font-weight: 700;
+      color: #333;
+      margin-bottom: 0.5rem;
+    }
+
+    .stat-card .stat-description {
+      color: #666;
+      font-size: 0.9rem;
+    }
+
+    .features-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 1.5rem;
+      margin-bottom: 2rem;
+    }
+
+    .feature-card {
+      background: white;
+      padding: 2rem;
+      border-radius: 15px;
+      box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+      text-align: center;
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+      border: 1px solid #f0f0f0;
+    }
+
+    .feature-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 15px 35px rgba(0,0,0,0.1);
+    }
+
+    .feature-icon {
+      width: 60px;
+      height: 60px;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 1rem;
+      color: white;
+      font-size: 1.5rem;
+    }
+
+    .feature-card h3 {
+      color: #333;
+      font-size: 1.3rem;
+      margin-bottom: 1rem;
+      font-weight: 600;
+    }
+
+    .feature-card p {
+      color: #666;
+      line-height: 1.6;
+      margin-bottom: 1.5rem;
+    }
+
+    .feature-btn {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      padding: 12px 24px;
+      border: none;
+      border-radius: 25px;
+      font-weight: 600;
+      text-decoration: none;
+      display: inline-block;
+      transition: all 0.3s ease;
+      box-shadow: 0 5px 15px rgba(102, 126, 234, 0.3);
+    }
+
+    .feature-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4);
+      color: white;
+      text-decoration: none;
+    }
+
+    .quick-actions {
+      background: white;
+      padding: 2rem;
+      border-radius: 15px;
+      box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+      margin-bottom: 2rem;
+    }
+
+    .quick-actions h2 {
+      color: #333;
+      font-size: 1.5rem;
+      margin-bottom: 1.5rem;
+      font-weight: 600;
+    }
+
+    .actions-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 1rem;
+    }
+
+    .action-btn {
+      background: #f8f9fa;
+      border: 2px solid #e9ecef;
+      padding: 1rem;
+      border-radius: 10px;
+      text-decoration: none;
+      color: #333;
+      text-align: center;
+      transition: all 0.3s ease;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      font-weight: 500;
+    }
+
+    .action-btn:hover {
+      background: #667eea;
+      color: white;
+      border-color: #667eea;
+      transform: translateY(-2px);
+      text-decoration: none;
+    }
+
+    .action-btn i {
+      font-size: 1.2rem;
+    }
+
+    @media (max-width: 768px) {
+      .dashboard-container {
+        padding: 1rem;
+      }
+      
+      .dashboard-header {
+        padding: 2rem 1rem;
+      }
+      
+      .dashboard-header h1 {
+        font-size: 2rem;
+      }
+      
+      .stats-grid,
+      .features-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+
+  </head>
+
+  <body>
+
+    {% include 'navbar_private.html' %}
+
+    <main class="dashboard-container">
+
+      <!-- Dashboard Header -->
+      <div class="dashboard-header">
+        <h1>Welcome back!</h1>
+        <p class="welcome-message">Ready to create amazing content with AI?</p>
+        <p>Your AI-powered writing assistant is here to help you generate documents and presentations.</p>
+      </div>
+
+      <!-- Stats Cards -->
+      <div class="stats-grid">
+        <div class="stat-card">
+          <h3><i class="fas fa-file-alt"></i> Documents Created</h3>
+          <div class="stat-value">12</div>
+          <div class="stat-description">This month</div>
+        </div>
+        <div class="stat-card">
+          <h3><i class="fas fa-presentation"></i> Presentations</h3>
+          <div class="stat-value">8</div>
+          <div class="stat-description">With images</div>
+        </div>
+        <div class="stat-card">
+          <h3><i class="fas fa-clock"></i> Time Saved</h3>
+          <div class="stat-value">6.5h</div>
+          <div class="stat-description">This week</div>
+        </div>
+        <div class="stat-card">
+          <h3><i class="fas fa-star"></i> Quality Score</h3>
+          <div class="stat-value">9.2</div>
+          <div class="stat-description">Out of 10</div>
+        </div>
+      </div>
+
+      <!-- Feature Cards -->
+      <div class="features-grid">
+        <div class="feature-card">
+          <div class="feature-icon">
+            <i class="fas fa-magic"></i>
+          </div>
+          <h3>AI Content Generation</h3>
+          <p>Generate high-quality content for documents and presentations using advanced AI technology.</p>
+          <a href="{{ url_for('lekhak') }}" class="feature-btn">
+            <i class="fas fa-arrow-right"></i> Start Writing
+          </a>
+        </div>
+        
+        <div class="feature-card">
+          <div class="feature-icon">
+            <i class="fas fa-file-word"></i>
+          </div>
+          <h3>Google Docs Integration</h3>
+          <p>Automatically create and populate Google Docs with your AI-generated content.</p>
+          <a href="{{ url_for('lekhak') }}" class="feature-btn">
+            <i class="fas fa-arrow-right"></i> Create Document
+          </a>
+        </div>
+        
+        <div class="feature-card">
+          <div class="feature-icon">
+            <i class="fas fa-images"></i>
+          </div>
+          <h3>Smart Presentations</h3>
+          <p>Generate beautiful presentations with relevant images automatically added to each slide.</p>
+          <a href="{{ url_for('lekhak') }}" class="feature-btn">
+            <i class="fas fa-arrow-right"></i> Create Slides
+          </a>
+        </div>
+        
+        <div class="feature-card">
+          <div class="feature-icon">
+            <i class="fas fa-file-pdf"></i>
+          </div>
+          <h3>PDF Summarizer</h3>
+          <p>Upload any PDF and get an intelligent summary with key points extracted using Gemini AI.</p>
+          <a href="{{ url_for('summarizer') }}" class="feature-btn">
+            <i class="fas fa-arrow-right"></i> Summarize PDF
+          </a>
+        </div>
+        
+        <div class="feature-card">
+          <div class="feature-icon">
+            <i class="fas fa-comments"></i>
+          </div>
+          <h3>Team Messenger</h3>
+          <p>Real-time messaging with your team members. Chat, collaborate, and stay connected.</p>
+          <a href="{{ url_for('messenger') }}" class="feature-btn">
+            <i class="fas fa-arrow-right"></i> Open Messenger
+          </a>
+        </div>
+      </div>
+
+      <!-- Quick Actions -->
+      <div class="quick-actions">
+        <h2>Quick Actions</h2>
+        <div class="actions-grid">
+          <a href="{{ url_for('lekhak') }}" class="action-btn">
+            <i class="fas fa-plus"></i>
+            New Content
+          </a>
+          <a href="{{ url_for('summarizer') }}" class="action-btn">
+            <i class="fas fa-file-pdf"></i>
+            Summarize PDF
+          </a>
+          <a href="{{ url_for('messenger') }}" class="action-btn">
+            <i class="fas fa-comments"></i>
+            Messenger
+          </a>
+          <a href="{{ url_for('profile_page') }}" class="action-btn" id="profileBtn">
+            <i class="fas fa-user-edit"></i>
+            <span>Complete Profile</span>
+          </a>
+          <a href="#" class="action-btn">
+            <i class="fas fa-history"></i>
+            Recent Files
+          </a>
+          <a href="#" class="action-btn">
+            <i class="fas fa-cog"></i>
+            Settings
+          </a>
+        </div>
+      </div>
+
+    </main>
+    
+    <script src="{{ url_for('static', filename='login-auth.js') }}" type="module"></script>
+    <script src="{{ url_for('static', filename='scripts.js') }}" type="module"></script>
+
+    <!-- Profile Status Check -->
+    <script>
+      // Check profile status and update button
+      fetch('/api/profile')
+        .then(response => {
+          if (response.status === 200) {
+            return response.json();
+          }
+          return null;
+        })
+        .then(data => {
+          const profileBtn = document.getElementById('profileBtn');
+          const profileSpan = profileBtn.querySelector('span');
+          
+          if (data && data.success && data.profile) {
+            // Profile exists
+            profileSpan.textContent = 'Update Profile';
+            profileBtn.style.background = '#28a745';
+            profileBtn.style.color = 'white';
+            profileBtn.style.borderColor = '#28a745';
+          } else {
+            // No profile - encourage completion
+            profileSpan.textContent = 'Complete Profile';
+            profileBtn.style.background = '#ffc107';
+            profileBtn.style.color = '#212529';
+            profileBtn.style.borderColor = '#ffc107';
+          }
+        })
+        .catch(error => {
+          console.log('Profile status check failed:', error);
+        });
+    </script>
+
+    <!-- Sakhaa Chat Widget -->
+    {% include 'sakhaa_chat_widget.html' %}
+
+  </body>
+  
+
+</html>

@@ -1,0 +1,6 @@
+firebase-auth.json
+.env
+.venv
+.myenv
+__pycache__
+oaith_client.txt
